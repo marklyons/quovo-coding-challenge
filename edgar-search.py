@@ -19,12 +19,30 @@ def get_fund_html(CIK):
 
 def get_13F_HR_html(html_fund_page):
 	# Use BeautifulSoup to parse HTML
-	soup = BeautifulSoup(html_fund_page)
+	soup = BeautifulSoup(html_fund_page, features="html.parser")
 
-	# Get results table, find first row with Filings=13F-HR
-	table_rows = soup.find("table", {"class": "tableFile2"})
-	print(table_rows)
+	# Get results table and then all rows.
+	result_table = soup.find("table", {"class": "tableFile2"})
+	rows = result_table.findAll("tr")
 
+	# Loop and find first row with 'Filings' = '13F-HR'
+	for row in rows:
+		# Get the value of first column, but escape if we're in header.
+		filings_val = row.find("td").contents[0] if not row.find("th") else "Header"
+		
+		# We only need the first 13F-HR entry.
+		if(filings_val == "13F-HR"):
+			format_col = row.findAll("td")[1]
+			url_13F_HR = "https://www.sec.gov" + format_col.find("a")['href']
+			html_13F_HR = urllib.request.urlopen(url_13F_HR).read()
+			return html_13F_HR
+			# Because we're only looking for first match:
+			break
+
+	# Occurs if first 40 documents don't contain a 13F-HR
+	return None 
 
 html_fund_page = get_fund_html("0001166559")
-html_13f_HR_page = get_13F_HR_html(html_fund_page)
+html_13F_HR_page = get_13F_HR_html(html_fund_page)
+print(html_13F_HR_page)
+
