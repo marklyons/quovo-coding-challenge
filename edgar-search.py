@@ -1,11 +1,12 @@
 import urllib.request
 import urllib.parse 
+from bs4 import BeautifulSoup
 
-def get_13F_HR_page(CIK):
-	""" Gets the HTML for our 13F_HR search result page
-			We are passing the CIK directl, so it will be an exact match.
-  		@param CIK: The Central Index Key of the desired fund
-  """
+def get_fund_html(CIK):
+	""" Returns the HTML for our fund page with all the documents.
+			We are passing the CIK directly, so it will be an exact match.
+			@param CIK: The Central Index Key of the desired fund
+	"""
 
 	# First, encode our parameters to be safe and append
 	base_url = "https://www.sec.gov/cgi-bin/browse-edgar?"
@@ -16,8 +17,14 @@ def get_13F_HR_page(CIK):
 	search_html = urllib.request.urlopen(search_url).read()
 	return search_html
 
-def parse_13F_HR_page(html_13F_HR):
-	print("test")
+def get_13F_HR_html(html_fund_page):
+	# Use BeautifulSoup to parse HTML
+	soup = BeautifulSoup(html_fund_page)
 
-html_for_13F_HR = get_13F_HR_page("0001166559")
+	# Get results table, find first row with Filings=13F-HR
+	table_rows = soup.find("table", {"class": "tableFile2"})
+	print(table_rows)
 
+
+html_fund_page = get_fund_html("0001166559")
+html_13f_HR_page = get_13F_HR_html(html_fund_page)
