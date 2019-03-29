@@ -170,7 +170,7 @@ def create_pie_chart(graph_data, CIK):
 	plt.axis('equal')
 	plt.show()
 
-
+# Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-cik", help="Central Index Key")
 parser.add_argument("-d", help="Date 13F-HR Filed")
@@ -191,7 +191,7 @@ html_13F_page = get_13F_html(html_fund_page, filing_date)
 text_url_13F = get_13F_text_url(html_13F_page)
 graph_data = parse_13F_text_file(text_url_13F, CIK_in)
 
-if(graph is not None):
+if(graph):
 	# Don't want to force mathplotlib for standard use
 	import matplotlib.pyplot as plt
 	create_pie_chart(graph_data, CIK_in)
