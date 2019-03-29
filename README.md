@@ -23,6 +23,6 @@ python edgar-search.py -cik CIK -d DATE_FILED -g
 The -d parameter allows you to specify a date on which the 13F-HR was filed. If there was actually a filing on that date, this will generate all the data from that 13F-HR.
 
 The -g flag does not need an argument, but when included it will display a neat graph like so:
-![alt text](graph-example.png "Graph sample")
+![alt text](graph-example.PNG "Graph sample")
 
 ### Additional Formats
