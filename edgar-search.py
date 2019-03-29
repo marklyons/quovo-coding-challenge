@@ -1,4 +1,5 @@
 import csv
+import sys
 import urllib.request
 import urllib.parse 
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ def get_fund_html(CIK):
 
 	# First, encode our parameters to be safe and append
 	base_url = "https://www.sec.gov/cgi-bin/browse-edgar?"
-	params = urllib.parse.urlencode({"Find": "Search", "owner": "exclude", "action": "getcompany", "CIK": CIK})
+	params = urllib.parse.urlencode({"Find": "Search", "owner": "exclude", "action": "getcompany", "CIK": CIK, "type": "13F-HR"})
 	search_url = base_url + params
 
 	# Now, make the request and return the HTML
@@ -59,38 +60,41 @@ def get_13F_text_url(html_13F_page):
 	return text_url
 
 def parse_13F_text_file(text_url_13F, CIK):
+	""" Parses 13F_HR .txt and produces a TSV file
+			@param text_url_13F: String contents of the 13F-HR .txt file.
+			@param CIK: The Central Index Key of the desired fund
+	"""
 	text_13F = urllib.request.urlopen(text_url_13F).read()
 
 	# BeautifulSoup also works for XML!
-	parsed_xml = BeautifulSoup(text_13F, features="html.parser")
-
+	parsed_xml = BeautifulSoup(text_13F, "xml")
 	# Holdings is contained in second XML block
-	holdings_xml = parsed_xml.findAll('xml')[1]
-	holdings = holdings_xml.findAll('infotable')
+	holdings_xml = parsed_xml.findAll('XML')[1]
+	holdings = holdings_xml.findAll('infoTable')
 	tsv_file_name = CIK + ".tsv"
 
 	# CSV writer is easiest to use, just change delimeter.
-	with open(tsv_file_name, "w") as holdings_tsv:
+	with open(tsv_file_name, "w+") as holdings_tsv:
 		writer = csv.writer(holdings_tsv, delimiter='\t')
 
 		#Write the header row
 		writer.writerow([
-			"ISSUER NAME", "CLASS TITLE", "CUSIP" "VALUE ($thousands)",
+			"ISSUER NAME", "CLASS TITLE", "CUSIP", "VALUE ($thousands)",
 			"INVESTMENT DISCRETION", "SHRS/PRN AMOUNT", "SH/PRN",
 			"VOTING AUTH SOLE", "VOTING AUTH SHARED", "VOTING AUTH NONE" 
 		])
 
 		for holding in holdings:
-			name_of_issuer = holding.find("nameofissuer").contents[0]
-			title_of_class = holding.find("titleofclass").contents[0]
+			name_of_issuer = holding.find("nameOfIssuer").contents[0]
+			title_of_class = holding.find("titleOfClass").contents[0]
 			cusip = holding.find("cusip").contents[0]
 			value = holding.find("value").contents[0]
-			investment_discretion = holding.find("investmentdiscretion").contents[0]
-			sshprnamt = holding.find("sshprnamt").contents[0]
-			sshprnamttype = holding.find("sshprnamttype").contents[0]
-			voting_authority_sole = holding.find("sole").contents[0]
-			voting_authority_shared = holding.find("sole").contents[0]
-			voting_authority_none = holding.find("sole").contents[0]
+			investment_discretion = holding.find("investmentDiscretion").contents[0]
+			sshprnamt = holding.find("sshPrnamt").contents[0]
+			sshprnamttype = holding.find("sshPrnamtType").contents[0]
+			voting_authority_sole = holding.find("Sole").contents[0]
+			voting_authority_shared = holding.find("Shared").contents[0]
+			voting_authority_none = holding.find("None").contents[0]
 
 			# Automatically separates with delimeter for us.
 			writer.writerow([
@@ -103,7 +107,7 @@ def parse_13F_text_file(text_url_13F, CIK):
 	holdings_tsv.close()
 
 
-CIK_in = "0001166559"
+CIK_in = sys.argv[1]
 html_fund_page = get_fund_html(CIK_in)
 html_13F_page = get_13F_html(html_fund_page)
 text_url_13F = get_13F_text_url(html_13F_page)
