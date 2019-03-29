@@ -20,9 +20,12 @@ This will create a file titled 0001166559.tsv in the same directory. You can run
 python edgar-search.py -cik CIK -d DATE_FILED -g
 ```
 
-The -d parameter allows you to specify a date on which the 13F-HR was filed. If there was actually a filing on that date, this will generate all the data from that 13F-HR.
+The `-d` parameter allows you to specify a date on which the 13F-HR was filed. If there was actually a filing on that date, this will generate all the data from that 13F-HR. The date must follow format `YYYY-MM-DD` in order to work!
 
-The -g flag does not need an argument, but when included it will display a neat graph like so:
+The `-g` flag does not need an argument, but when included it will display a neat graph like so:
 ![alt text](graph-example.PNG "Graph sample")
 
 ### Additional Formats
+I was looking out for some additional formats and it looks like this works on all of the [most recent 13F-HR filings](https://www.holdingschannel.com/13f/latest-filings/). I did encounter another format earlier but it was drastically different and would require an entirely different parsing approach. 
+
+I am yet to find a 13F-HR on EDGAR that does not use XML. So, in order to build a parser that would support other formats, I would look for some key indicators of these different formats and then adjust my approach in `parse_13F_text_file`. BeautifulSoup is very versatile so once I have the format identified, it should be straightforward to adapt the parsing algorithm.

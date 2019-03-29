@@ -177,7 +177,6 @@ parser.add_argument("-d", help="Date 13F-HR Filed")
 parser.add_argument("-g", help="Draw a graph", action='store_true')
 args = parser.parse_args()
 
-
 CIK_in = args.cik
 
 # Allow user to specify filing date (optional)
